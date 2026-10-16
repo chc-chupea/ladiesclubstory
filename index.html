@@ -112,6 +112,46 @@ header{padding:13px 0 15px}.intro b{font-size:19px}.intro small{font-size:15px}
  header h1{font-size:19px}
 }
 
+
+/* スマホ裏面：スタンプをうちわプレビューの直前で選ぶ */
+.back-start{display:none}
+.back-pick-status{margin:0 0 10px;color:#35614b;font-size:16px;font-weight:750;line-height:1.45;min-height:0}
+.back-more-btn{display:block;width:100%;min-height:52px;margin-top:10px;border:2px solid #bd8faa;border-radius:13px;background:#fff;color:#63324e;font-size:17px;font-weight:800;padding:9px 12px}
+.back-start-heading{display:flex;align-items:center;gap:9px;justify-content:center;font-size:21px;font-weight:850;line-height:1.4;color:#49253b;margin:0 0 5px}
+.back-start-lead{font-size:15px;line-height:1.5;color:#5b4d57;margin:0 0 10px;text-align:center}
+.back-more-grid{display:none}
+.back-more-grid.is-open{display:grid}
+.back-select-again{display:none}
+@media(max-width:870px){
+ body[data-side="back"] .photo-start{display:none}
+ body[data-side="back"] .back-start{display:block;border:2px solid #cfabc0;border-radius:18px;background:#fff;box-shadow:0 6px 20px rgba(80,31,60,.09);padding:12px 12px 14px;margin:0 0 9px}
+ .back-start .stamp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:0}
+ .back-start .stamp-btn{height:100px;border:2px solid #c9b7c2;border-radius:13px;padding:5px 4px 30px;background:#fff8fc}
+ .back-start .stamp-btn img{max-height:100%;max-width:100%;object-fit:contain}
+ .back-start .stamp-btn span{bottom:2px;font-size:13px;line-height:1.15;font-weight:800;background:#fffefeea;white-space:normal;max-height:30px;overflow:hidden}
+ .back-start .stamp-btn:active{background:#f7e8ef;border-color:#7b345e}
+ .back-start .back-more-grid{display:none;margin-top:10px}
+ .back-start .back-more-grid.is-open{display:grid}
+ .back-start .back-pick-status:empty{display:none}
+ body[data-side="back"] .back-select-again{display:block;margin:4px 10px 10px;width:calc(100% - 20px);min-height:50px;border:2px solid #be9dae;border-radius:12px;background:#fff8fc;font-size:17px;font-weight:800;color:#693452}
+ body[data-side="back"] .edit-panel .section-head,
+ body[data-side="back"] #backEditor .eyeline,
+ body[data-side="back"] #backEditor .subhint,
+ body[data-side="back"] #backEditor #stampGrid,
+ body[data-side="back"] #backEditor #stampControls,
+ body[data-side="back"] #backEditor #stampEmpty{display:none!important}
+ body[data-side="back"] .edit-panel .edit-body{padding-top:13px}
+ body[data-side="back"] .edit-panel #nextOrder{margin-top:0!important}
+}
+@media(max-width:380px){
+ .back-start-heading{font-size:19px}
+ .back-start-lead{font-size:14px}
+ .back-start .stamp-grid{gap:7px}
+ .back-start .stamp-btn{height:89px;padding-bottom:28px}
+ .back-start .stamp-btn span{font-size:12px}
+ body[data-side="back"] .back-start{padding:10px}
+}
+
 </style>
 </head>
 <body>
@@ -127,12 +167,21 @@ header{padding:13px 0 15px}.intro b{font-size:19px}.intro small{font-size:15px}
     <span id="photoStartAction">写真を選ぶ</span>
   </label>
 </section>
+<section class="back-start" id="backStart" aria-label="裏面のスタンプを選ぶ">
+  <h2 class="back-start-heading">② 好きなスタンプを選ぶ</h2>
+  <p class="back-start-lead">押すだけで、うちわの裏面に付きます</p>
+  <p class="back-pick-status" id="backPickStatus" role="status" aria-live="polite"></p>
+  <div class="stamp-grid" id="quickStampGrid" aria-label="おすすめのスタンプ６種類"></div>
+  <div class="stamp-grid back-more-grid" id="moreStampGrid" aria-label="その他のスタンプ６種類"></div>
+  <button type="button" class="back-more-btn" id="toggleMoreStamps" aria-expanded="false" aria-controls="moreStampGrid">＋ ほかのスタンプを見る（６種類）</button>
+</section>
 <div class="intro"><b>思い出の写真で、私だけのうちわを。</b><small>写真を選ぶ → スタンプを選ぶ → 注文する。それだけです。</small></div>
 <div class="layout">
 <section class="panel preview-panel" aria-label="うちわのプレビュー">
 <div class="section-head"><h2>うちわの仕上がり</h2><p>画面のうちわに指で触れて、位置や大きさを調整できます。</p></div>
 <div class="tabs"><button type="button" class="tab" id="tabFront" aria-selected="true">① 表 <em>記念写真</em></button><button type="button" class="tab" id="tabBack" aria-selected="false">② 裏 <em>推しスタンプ</em></button></div>
 <div class="stage-wrap"><canvas id="stage" width="1024" height="725" aria-label="うちわ編集キャンバス"></canvas></div>
+<button type="button" class="back-select-again" id="backSelectAgain">＋ 別のスタンプも選ぶ</button>
 <div class="stage-caption"><span id="stageHelp" role="status">写真を選ぶと、ここに表示されます。</span><b id="stageSide">表面</b></div>
 <div class="gesture-note">☝️ １本指で動かす　✌️ ２本指で大きさ・回転</div>
 <div class="touch-tools" id="touchTools" aria-label="指の操作が難しいときのボタン">
@@ -206,6 +255,7 @@ function updateThumbs(){if(!ready)return;for(const which of ['front','back']){co
 function switchSide(which){
  if(!['front','back'].includes(which))return;
  side=which;
+ document.body.dataset.side=which;
  ['Front','Back'].forEach(v=>{const x=v.toLowerCase();el('tab'+v).setAttribute('aria-selected',String(which===x));el('mini'+v).classList.toggle('active',which===x);el(x+'Editor').classList.toggle('active',which===x)});
  el('editorTitle').textContent=which==='front'?'① 記念写真を選ぶ':'② 推しスタンプを選ぶ';
  el('editorDesc').textContent=which==='front'?'会場で撮った写真を選びましょう。':'好きなスタンプを押して、裏面に付けましょう。';
@@ -223,7 +273,7 @@ function updateTouchTools(){
  const lbl=el('resetThingLabel');if(lbl)lbl.textContent=side==='front'?'元に戻す':'取り消す';
  const btn=el('resetThingBtn');if(btn)btn.setAttribute('aria-label',side==='front'?'写真の位置と大きさを元に戻す':'選んだスタンプを取り消す');
 }
-function addStamp(key){if(!pics[key])return;saveUndo();const offset=stamps.length%6;const s={id:stampId++,key,x:512+offset*14-30,y:340+offset*14-30,scale:1,angle:0};stamps.push(s);selected=s.id;updateStampControls();el('stageHelp').textContent='新しいスタンプが付きました。指で動かせます。';render();updateThumbs();scrollToStage()}
+function addStamp(key){if(!pics[key])return;saveUndo();const offset=stamps.length%6;const s={id:stampId++,key,x:512+offset*14-30,y:340+offset*14-30,scale:1,angle:0};stamps.push(s);selected=s.id;updateStampControls();const label=stampsMeta[key]||'スタンプ';el('stageHelp').textContent='「'+label+'」が付きました。指で動かせます。';el('backPickStatus').textContent='✓ 「'+label+'」を追加しました';render();updateThumbs();scrollToStage()}
 function currentStamp(){return stamps.find(s=>s.id===selected)}
 function moveStamp(fn){const s=currentStamp();if(!s)return;saveUndo();fn(s);updateStampControls();render();updateThumbs()}
 function hitStamp(x,y){for(let i=stamps.length-1;i>=0;i--){const s=stamps[i],t=-(s.angle*Math.PI/180),dx=x-s.x,dy=y-s.y,rx=dx*Math.cos(t)-dy*Math.sin(t),ry=dx*Math.sin(t)+dy*Math.cos(t),{w,h}=stampDimensions(s);if(Math.abs(rx)<w/2+12&&Math.abs(ry)<h/2+12)return s}return null}
@@ -284,9 +334,13 @@ function onPointerUp(e){
  gesture=null;
  try{stage.releasePointerCapture(e.pointerId)}catch{}
 }
-function scrollToStage(){
- // お客様が編集する場所へ戻る。スクロール後にプレビューが見えるようにする
- el('stage').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+function easyScrollTo(id,block='start'){
+ el(id).scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block});
+}
+function scrollToStage(){easyScrollTo('stage','center')}
+function showBackPicker(){
+ if(window.matchMedia('(max-width:870px)').matches) easyScrollTo('backStart','start');
+ else scrollToStage();
 }
 async function onPhotoSelected(e){const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){alert('画像ファイルを選択してください。');e.target.value='';return}if(file.size>30*1024*1024){alert('画像は30MB以下を選択してください。');e.target.value='';return}const objectURL=URL.createObjectURL(file);try{const img=await loadImage(objectURL);photoImage=img;photo={x:512,y:330,scale:1,angle:0,bright:1,sat:1,contrast:1};frontStack=[];frontRedo=[];switchSide('front');updateUndo();updatePhotoControls();el('stageHelp').textContent='写真が入りました。指で動かせます。';el('photoStart').classList.add('is-ready');el('photoStartAction').textContent='写真を選び直す';render();updateThumbs();scrollToStage()}catch{alert('写真を開けませんでした。別の画像を選んでください。')}finally{URL.revokeObjectURL(objectURL);e.target.value=''}}
 async function toPngBlob(c){return await new Promise((resolve,reject)=>c.toBlob(blob=>blob?resolve(blob):reject(new Error('画像を書き出せませんでした')),'image/png'))}
@@ -324,9 +378,16 @@ function resetTarget(){
  render();updateThumbs();
 }
 function wire(){
- el('tabFront').onclick=()=>switchSide('front');el('tabBack').onclick=()=>switchSide('back');
- el('miniFront').onclick=()=>{switchSide('front');scrollToStage()};el('miniBack').onclick=()=>{switchSide('back');scrollToStage()};
- el('nextBack').onclick=()=>{switchSide('back');scrollToStage()};
+ el('tabFront').onclick=()=>switchSide('front');el('tabBack').onclick=()=>{switchSide('back');showBackPicker()};
+ el('miniFront').onclick=()=>{switchSide('front');scrollToStage()};el('miniBack').onclick=()=>{switchSide('back');showBackPicker()};
+ el('nextBack').onclick=()=>{switchSide('back');showBackPicker()};
+ el('backSelectAgain').onclick=showBackPicker;
+ el('toggleMoreStamps').onclick=()=>{
+  const grid=el('moreStampGrid'),expanded=!grid.classList.contains('is-open');
+  grid.classList.toggle('is-open',expanded);
+  el('toggleMoreStamps').setAttribute('aria-expanded',String(expanded));
+  el('toggleMoreStamps').textContent=expanded?'－ ほかのスタンプを閉じる':'＋ ほかのスタンプを見る（６種類）';
+ };
  el('nextOrder').onclick=()=>el('orderPanel').scrollIntoView({behavior:'smooth',block:'start'});
  el('undoBtn').onclick=undo;el('redoBtn').onclick=redo;
  el('photoInput').addEventListener('change',onPhotoSelected);
@@ -334,10 +395,15 @@ function wire(){
  el('rotateBtn').onclick=rotateTarget;el('resetThingBtn').onclick=resetTarget;
  el('autoAdjust').onclick=()=>{if(!photoImage)return;saveUndo();photo.bright=1.10;photo.sat=1.16;photo.contrast=1.08;render();updateThumbs()};
  el('adjustReset').onclick=()=>{if(!photoImage)return;saveUndo();photo.bright=photo.sat=photo.contrast=1;render();updateThumbs()};
- const grid=el('stampGrid');for(const [key,label] of STAMPS){
+ const makeStampButton=(key,label)=>{
   const b=document.createElement('button');b.className='stamp-btn';b.type='button';b.title=label;b.setAttribute('aria-label',label+'をつける');
   const im=document.createElement('img');im.src=resolveAsset('assets/'+key);im.alt='';
-  const tag=document.createElement('span');tag.textContent=label;b.append(im,tag);b.onclick=()=>addStamp(key);grid.append(b)
+  const tag=document.createElement('span');tag.textContent=label;b.append(im,tag);b.onclick=()=>addStamp(key);return b;
+ };
+ const featured=['01loveu.png','03eyestome.png','07precious.png','08osi_pink.png','12nagekiss.png','05angel.png'];
+ for(const [key,label] of STAMPS){
+  el('stampGrid').append(makeStampButton(key,label));
+  el(featured.includes(key)?'quickStampGrid':'moreStampGrid').append(makeStampButton(key,label));
  }
  stage.addEventListener('pointerdown',onPointerDown);
  stage.addEventListener('pointermove',onPointerMove);
