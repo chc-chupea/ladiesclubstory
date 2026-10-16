@@ -65,11 +65,68 @@ header{padding:13px 0 15px}.intro b{font-size:19px}.intro small{font-size:15px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important}}
 
+
+/* スマホ専用：開いた直後に写真を選べるファーストビュー */
+.visually-hidden-file{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important}
+.photo-start{display:none}
+@media(max-width:870px){
+ header{padding:9px 0 10px;border-bottom-width:3px}
+ header .eyebrow{font-size:10px;letter-spacing:.12em;line-height:1.3}
+ header h1{font-size:20px;margin:2px 0;line-height:1.2}
+ header p{font-size:13px;line-height:1.4}
+ main.wrap{padding-top:9px}
+ .intro{display:none}
+ .photo-start{display:block;margin:0 0 10px;border:2px solid #cfabc0;border-radius:18px;background:#fff;box-shadow:0 6px 20px rgba(80,31,60,.09);padding:12px 13px 13px;text-align:center}
+ .photo-start-title{font-size:20px;font-weight:850;color:#49253b;line-height:1.4;margin:0 0 6px}
+ .photo-start-hint{font-size:14px;color:#655564;margin:0 0 10px;line-height:1.35}
+ .photo-start-label{display:flex;align-items:center;justify-content:center;gap:12px;border-radius:14px;background:#682447;color:#fff;min-height:76px;padding:13px 12px;font-size:24px;line-height:1.2;font-weight:850;border:3px solid #682447;box-shadow:0 4px 0 #3d1730;cursor:pointer;user-select:none}
+ .photo-start-label:active{transform:translateY(2px);box-shadow:0 2px 0 #3d1730}
+ .photo-start-label:focus-visible{outline:4px solid #d9a4bd;outline-offset:3px}
+ .photo-start-symbol{font-size:32px;line-height:1;flex-shrink:0}
+ .photo-start-label span:last-child{white-space:nowrap}
+ .photo-start-ready{display:none;color:#205b43;font-size:16px;font-weight:750;margin-bottom:7px}
+ .photo-start.is-ready{padding:10px 13px}
+ .photo-start.is-ready .photo-start-title,.photo-start.is-ready .photo-start-hint{display:none}
+ .photo-start.is-ready .photo-start-ready{display:block}
+ .photo-start.is-ready .photo-start-label{min-height:52px;padding:8px 12px;font-size:18px;background:#fff;color:#682447;box-shadow:none;border:2px solid #b98ba7}
+ .photo-start.is-ready .photo-start-symbol{font-size:24px}
+ .preview-panel .section-head{padding:10px 12px 6px;border-bottom:none}
+ .preview-panel .section-head h2{font-size:17px;margin:0}
+ .preview-panel .section-head p{display:none}
+ .preview-panel .tabs{padding:5px 10px 0;gap:7px}
+ .preview-panel .tab{min-height:52px;font-size:16px;padding:6px 6px;border-radius:10px}
+ .preview-panel .tab em{font-size:11px;margin-top:0}
+ .stage-wrap{margin:7px 10px 6px}
+ .stage-caption{padding:0 12px 6px;font-size:14px}
+ .gesture-note{font-size:14px;padding:7px 9px;margin:0 10px 10px}
+ .edit-panel .section-head{padding:12px 14px}
+ .edit-body .upload-label{font-size:18px}
+ .edit-panel .section-head p{font-size:15px}
+}
+@media(max-width:380px){
+ .photo-start{padding:10px 11px 11px;margin-bottom:8px}
+ .photo-start-title{font-size:19px;margin-bottom:4px}
+ .photo-start-hint{font-size:13px;margin-bottom:8px}
+ .photo-start-label{font-size:22px;min-height:71px}
+ .photo-start-symbol{font-size:29px}
+ header h1{font-size:19px}
+}
+
 </style>
 </head>
 <body>
 <header><div class="wrap"><div class="eyebrow">CHUGOKU SHIMBUN · LADIES CLUB</div><h1>思い出を、推しといっしょに。</h1><p>レディースクラブ STORY × Myうちわ</p></div></header>
 <main class="wrap">
+<input class="visually-hidden-file" id="photoInput" type="file" accept="image/*" aria-label="記念写真を選ぶ・撮る">
+<section class="photo-start" id="photoStart" aria-label="最初に写真を選ぶ">
+  <h2 class="photo-start-title">① まず、記念写真を選びましょう</h2>
+  <p class="photo-start-hint">スマホにある写真を使えます</p>
+  <p class="photo-start-ready" id="photoStartReady" role="status">✓ 写真が入りました</p>
+  <label class="photo-start-label" for="photoInput" id="photoStartLabel">
+    <span class="photo-start-symbol" aria-hidden="true">📷</span>
+    <span id="photoStartAction">写真を選ぶ</span>
+  </label>
+</section>
 <div class="intro"><b>思い出の写真で、私だけのうちわを。</b><small>写真を選ぶ → スタンプを選ぶ → 注文する。それだけです。</small></div>
 <div class="layout">
 <section class="panel preview-panel" aria-label="うちわのプレビュー">
@@ -92,7 +149,7 @@ header{padding:13px 0 15px}.intro b{font-size:19px}.intro small{font-size:15px}
 <div class="section-head"><h2 id="editorTitle">① 記念写真を選ぶ</h2><p id="editorDesc">会場で撮った写真を選びましょう。</p></div>
 <div class="edit-body">
 <div class="edit-block active fade-enter" id="frontEditor">
-<label class="upload-label">📷 写真を選ぶ・撮る<input id="photoInput" type="file" accept="image/*" aria-label="記念写真を選ぶ・撮る"></label><div class="subhint">写真を選んだら、上のうちわで位置を調整できます。<br>指２本の操作が難しいときは「大きく」「小さく」「回す」を押してください。</div>
+<label class="upload-label" for="photoInput">📷 写真を選ぶ・撮る</label><div class="subhint">写真を選んだら、上のうちわで位置を調整できます。<br>指２本の操作が難しいときは「大きく」「小さく」「回す」を押してください。</div>
 <div class="ctrlbox"><div class="eyeline">写真を明るくする（お好みで）</div><div class="ctrlrow"><button type="button" class="btn primary" id="autoAdjust">✨ 写真をきれいに</button><button type="button" class="btn" id="adjustReset">補正を戻す</button></div></div>
 <button type="button" class="btn primary" id="nextBack" style="display:block;width:100%;margin-top:14px">次へ　② スタンプを選ぶ →</button>
 </div>
@@ -141,7 +198,7 @@ function drawStamps(ctx){for(const s of stamps){const img=pics[s.key];if(!img)co
 const layerCache=new Map();
 function getLayer(outW,outH){if(outW>1024){const c=document.createElement('canvas');c.width=outW;c.height=outH;return c}const key=outW+'x'+outH;if(!layerCache.has(key)){const c=document.createElement('canvas');c.width=outW;c.height=outH;layerCache.set(key,c)}return layerCache.get(key)}
 function drawComposition(ctx,which,outW,outH){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#fff';ctx.fillRect(0,0,outW,outH);if(!ready){ctx.restore();return}const layer=getLayer(outW,outH);const l=layer.getContext('2d');l.setTransform(1,0,0,1,0,0);l.clearRect(0,0,outW,outH);l.setTransform(outW/CW,0,0,outH/CH,0,0);if(which==='front')drawPhoto(l);else drawStamps(l);l.filter='none';l.globalCompositeOperation='destination-in';l.drawImage(pics.mask,0,0,CW,CH);l.globalCompositeOperation='source-over';if(which==='back'){ctx.setTransform(outW/CW,0,0,outH/CH,0,0);ctx.drawImage(pics.back,0,0,CW,CH);ctx.setTransform(1,0,0,1,0,0);ctx.drawImage(layer,0,0);}else{ctx.drawImage(layer,0,0);ctx.setTransform(outW/CW,0,0,outH/CH,0,0);ctx.drawImage(pics.front,0,0,CW,CH);}ctx.restore()}
-function drawReceiptBand(ctx,outW,outH,displayCode){if(!displayCode)return;ctx.save();const scale=Math.min(outW/PRINT_W,outH/PRINT_H);const padX=32*scale,padY=16*scale;const font=Math.max(28*scale,14);ctx.font=`700 ${font}px system-ui,-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif`;const textW=ctx.measureText(displayCode).width;const bandH=font+padY*2;const bandW=textW+padX*2;const x=outW-bandW-140*scale;const y=outH-bandH-130*scale;ctx.fillStyle='rgba(255,255,255,0.88)';ctx.fillRect(x,y,bandW,bandH);ctx.fillStyle='rgba(70,70,70,0.92)';ctx.textBaseline='middle';ctx.fillText(displayCode,x+padX,y+bandH/2);ctx.restore()}
+function drawReceiptBand(ctx,outW,outH,displayCode){if(!displayCode)return;ctx.save();const scale=Math.min(outW/PRINT_W,outH/PRINT_H);const padX=32*scale,padY=16*scale;const font=Math.max(40*scale,15);ctx.font=`700 ${font}px system-ui,-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif`;const textW=ctx.measureText(displayCode).width;const bandH=font+padY*2;const bandW=textW+padX*2;const x=Math.min(outW*0.665,outW*0.80-bandW);const y=outH*0.797;ctx.fillStyle='rgba(255,255,255,0.88)';ctx.fillRect(x,y,bandW,bandH);ctx.fillStyle='rgba(70,70,70,0.92)';ctx.textBaseline='middle';ctx.fillText(displayCode,x+padX,y+bandH/2);ctx.restore()}
 function drawSelected(){if(side!=='back')return;const s=stamps.find(x=>x.id===selected);if(!s)return;const {w,h}=stampDimensions(s);sc.save();sc.translate(s.x,s.y);sc.rotate(s.angle*Math.PI/180);sc.strokeStyle='#8c416f';sc.lineWidth=2;sc.setLineDash([8,6]);sc.strokeRect(-w/2-5,-h/2-5,w+10,h+10);sc.setLineDash([]);sc.fillStyle='#8c416f';for(const [x,y] of [[-w/2,-h/2],[w/2,h/2],[-w/2,h/2],[w/2,-h/2]])sc.fillRect(x-4,y-4,8,8);sc.restore()}
 function render(){if(!ready)return;drawComposition(sc,side,CW,CH);sc.drawImage(pics.outline,0,0,CW,CH);drawSelected()}
 function makePrintCanvas(which,displayCode=''){const c=document.createElement('canvas');c.width=PRINT_W;c.height=PRINT_H;const cx=c.getContext('2d');drawComposition(cx,which,PRINT_W,PRINT_H);drawReceiptBand(cx,PRINT_W,PRINT_H,displayCode);return c}
@@ -231,7 +288,7 @@ function scrollToStage(){
  // お客様が編集する場所へ戻る。スクロール後にプレビューが見えるようにする
  el('stage').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
 }
-async function onPhotoSelected(e){const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){alert('画像ファイルを選択してください。');return}if(file.size>30*1024*1024){alert('画像は30MB以下を選択してください。');return}const objectURL=URL.createObjectURL(file);try{const img=await loadImage(objectURL);photoImage=img;photo={x:512,y:330,scale:1,angle:0,bright:1,sat:1,contrast:1};frontStack=[];frontRedo=[];updateUndo();updatePhotoControls();el('stageHelp').textContent='写真が入りました。指で動かせます。';render();updateThumbs();scrollToStage()}catch{alert('写真を開けませんでした。別の画像を選んでください。')}finally{URL.revokeObjectURL(objectURL)}}
+async function onPhotoSelected(e){const file=e.target.files?.[0];if(!file)return;if(!file.type.startsWith('image/')){alert('画像ファイルを選択してください。');e.target.value='';return}if(file.size>30*1024*1024){alert('画像は30MB以下を選択してください。');e.target.value='';return}const objectURL=URL.createObjectURL(file);try{const img=await loadImage(objectURL);photoImage=img;photo={x:512,y:330,scale:1,angle:0,bright:1,sat:1,contrast:1};frontStack=[];frontRedo=[];switchSide('front');updateUndo();updatePhotoControls();el('stageHelp').textContent='写真が入りました。指で動かせます。';el('photoStart').classList.add('is-ready');el('photoStartAction').textContent='写真を選び直す';render();updateThumbs();scrollToStage()}catch{alert('写真を開けませんでした。別の画像を選んでください。')}finally{URL.revokeObjectURL(objectURL);e.target.value=''}}
 async function toPngBlob(c){return await new Promise((resolve,reject)=>c.toBlob(blob=>blob?resolve(blob):reject(new Error('画像を書き出せませんでした')),'image/png'))}
 
 function status(s,kind=''){const x=el('orderStatus');x.textContent=s;x.className='status '+kind}
